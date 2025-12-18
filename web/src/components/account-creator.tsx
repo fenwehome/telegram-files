@@ -31,7 +31,7 @@ import { useTelegramAccount } from "@/hooks/use-telegram-account";
 import TGDuck16Plane from "@/components/animations/tg-duck16_plane.json";
 import TGQRPlane from "@/components/animations/tg-qr-plane.json";
 import dynamic from "next/dynamic";
-import QRCodeStyling, { Options } from "qr-code-styling";
+import QRCodeStyling, { type Options } from "qr-code-styling";
 
 interface AccountCreatorProps {
   isAdd?: boolean;
@@ -67,7 +67,6 @@ export default function AccountCreator({
   } = useSWRMutation<{ id: string }, Error>(
     "/telegram/create",
     async (key: string) => {
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-return
       return await request(key, {
         method: "POST",
         body: JSON.stringify({

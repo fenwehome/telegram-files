@@ -189,7 +189,6 @@ export default function SettingsForm() {
               endRequired={true}
               includeSeconds={false}
               timeRange={
-                // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
                 settings?.autoDownloadTimeLimited
                   ? JSON.parse(settings.autoDownloadTimeLimited)
                   : { startTime: "00:00", endTime: "00:00" }

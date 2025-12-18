@@ -167,8 +167,7 @@ export function useFiles(
           data.downloadedSize ?? prev[data.uniqueId]?.downloadedSize,
         transferStatus:
           data.transferStatus ?? prev[data.uniqueId]?.transferStatus,
-        thumbnailFile:
-          data.thumbnailFile ?? prev[data.uniqueId]?.thumbnailFile,
+        thumbnailFile: data.thumbnailFile ?? prev[data.uniqueId]?.thumbnailFile,
       },
     }));
   }, [lastJsonMessage]);

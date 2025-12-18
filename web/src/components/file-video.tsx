@@ -34,7 +34,7 @@ const VideoErrorFallback = ({
 );
 
 const Slider = React.forwardRef<
-  React.ElementRef<typeof SliderPrimitive.Root>,
+  React.ComponentRef<typeof SliderPrimitive.Root>,
   React.ComponentPropsWithoutRef<typeof SliderPrimitive.Root>
 >(({ className, ...props }, ref) => (
   <SliderPrimitive.Root
@@ -89,13 +89,13 @@ const DesktopControls = ({
   onFullscreenToggle: () => void;
   onPlaybackRateChange: (rate: number) => void;
   onSeek: (time: number) => void;
-  progressBarRef: React.RefObject<HTMLDivElement>;
+  progressBarRef: React.RefObject<HTMLDivElement | null>;
   onProgressBarHover: (e: React.MouseEvent) => void;
   onProgressBarLeave: () => void;
   showPreview: boolean;
   previewTime: number;
   previewPos: number;
-  canvasRef: React.RefObject<HTMLCanvasElement>;
+  canvasRef: React.RefObject<HTMLCanvasElement | null>;
 }) => {
   const playbackRates = [0.5, 0.75, 1, 1.25, 1.5, 2];
   const formatTime = (seconds: number) => {
@@ -469,7 +469,7 @@ const FileVideo = ({
     }
   };
 
-  const handleError = (e: React.SyntheticEvent<HTMLVideoElement, Event>) => {
+  const handleError = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     setError(true);
     const videoElement = e.currentTarget;
     console.error("Video playback error：", {

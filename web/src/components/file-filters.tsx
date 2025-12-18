@@ -101,7 +101,7 @@ const TagsFilter = ({ tags, onChange }: TagsFilterProps) => {
       <Label>Tags</Label>
       <TagsSelector
         value={tags}
-        onChange={onChange}
+        onChangeAction={onChange}
         tags={split(",", settings?.tags)}
       />
     </div>
