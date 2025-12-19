@@ -42,7 +42,7 @@ RUN npm ci --frozen-lockfile
 COPY ./web .
 RUN npm run build
 
-FROM alpine:3.14.10 AS final
+FROM alpine:3.18.12 AS final
 
 WORKDIR /app
 
@@ -54,7 +54,7 @@ ENV JAVA_HOME=/jre \
 
 RUN addgroup -S tf && \
     adduser -S -G tf tf && \
-    apk add --no-cache nginx wget curl unzip tini su-exec gettext openssl libstdc++ gcompat libc6-compat && \
+    apk add --no-cache nginx wget curl unzip tini su-exec gettext openssl3 libstdc++ gcompat libc6-compat && \
     rm -rf /tmp/* /var/tmp/* && \
     touch /run/nginx.pid && \
     chown -R tf:tf /app /etc/nginx /var/lib/nginx /var/log/nginx /run/nginx.pid && \
