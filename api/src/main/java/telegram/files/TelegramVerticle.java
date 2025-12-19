@@ -181,6 +181,7 @@ public class TelegramVerticle extends AbstractVerticle {
         if (offline) {
             return FileRecordRetriever.getFiles(chatId, filter);
         } else {
+            long messageThreadId = Convert.toLong(filter.get("messageThreadId"), 0L);
             TdApi.SearchChatMessages searchChatMessages = new TdApi.SearchChatMessages();
             searchChatMessages.chatId = chatId;
             searchChatMessages.query = filter.get("search");
@@ -188,7 +189,7 @@ public class TelegramVerticle extends AbstractVerticle {
             searchChatMessages.offset = Convert.toInt(filter.get("offset"), 0);
             searchChatMessages.limit = Convert.toInt(filter.get("limit"), 20);
             searchChatMessages.filter = TdApiHelp.getSearchMessagesFilter(filter.get("type"));
-            searchChatMessages.messageThreadId = Convert.toLong(filter.get("messageThreadId"), 0L);
+            searchChatMessages.topicId = messageThreadId > 0 ? new TdApi.MessageTopicThread(messageThreadId) : null;
 
             return (Objects.equals(filter.get("downloadStatus"), FileRecord.DownloadStatus.idle.name()) ?
                     this.getIdleChatFiles(searchChatMessages, 0) :
@@ -235,8 +236,8 @@ public class TelegramVerticle extends AbstractVerticle {
                                 new TdApi.SearchMessagesFilterDocument())
                         .map(filter -> client.execute(
                                                 new TdApi.GetChatMessageCount(chatId,
+                                                        null,
                                                         filter,
-                                                        0,
                                                         false)
                                         )
                                         .map(count -> new JsonObject()
