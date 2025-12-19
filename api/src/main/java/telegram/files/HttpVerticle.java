@@ -184,8 +184,8 @@ public class HttpVerticle extends AbstractVerticle {
                         return;
                     }
                     Throwable throwable = ctx.failure();
-                    log.error("route: %s statusCode: %d".formatted(
-                            ctx.currentRoute().getName(),
+                    log.trace("route: %s, statusCode: %d".formatted(
+                            ctx.request().path(),
                             statusCode), throwable);
                     HttpServerResponse response = ctx.response();
                     response.setStatusCode(statusCode)
