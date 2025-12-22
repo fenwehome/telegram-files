@@ -236,8 +236,18 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         searchChatMessages.limit = Math.min(MAX_WAITING_LENGTH, 100);
         searchChatMessages.filter = TdApiHelp.getSearchMessagesFilter(nextFileType);
         searchChatMessages.topicId = params.messageThreadId > 0 ? new TdApi.MessageTopicThread(params.messageThreadId) : null;
+        String finalNextFileType = nextFileType;
         TdApi.FoundChatMessages foundChatMessages = Future.await(telegramVerticle.client.execute(searchChatMessages)
-                .onFailure(r -> log.error("Search chat messages failed! TelegramId: %d ChatId: %d".formatted(telegramId, chatId), r))
+                .onFailure(r -> {
+                    log.warn("Search chat messages failed! TelegramId: %d ChatId: %d".formatted(telegramId, chatId), r);
+                    if (r instanceof TelegramRunException tre) {
+                        TdApi.Error error = tre.getError();
+                        if (error.code == 400 && ("Can't access the chat".equals(error.message))) {
+                            log.error("%s Can't access the chat, stop auto download!".formatted(uniqueKey));
+                            callback.accept(new ScanResult(finalNextFileType, nextFromMessageId, true));
+                        }
+                    }
+                })
         );
         if (foundChatMessages == null) {
             callback.accept(new ScanResult(nextFileType, nextFromMessageId, false));
