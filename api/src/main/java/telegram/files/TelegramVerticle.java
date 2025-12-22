@@ -827,6 +827,10 @@ public class TelegramVerticle extends AbstractVerticle {
                     if (root.exists()) {
                         FileUtil.del(root);
                     }
+                    if (getId() instanceof Long telegramId) {
+                        DataVerticle.telegramRepository.delete(telegramId)
+                                .onFailure(e -> log.error("[%s] Failed to delete telegram record: %s".formatted(this.getRootId(), e.getMessage())));
+                    }
                     log.info("[%s] Telegram account deleted".formatted(this.getRootId()));
                 }
                 break;

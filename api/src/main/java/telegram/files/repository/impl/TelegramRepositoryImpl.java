@@ -56,6 +56,15 @@ public class TelegramRepositoryImpl extends AbstractSqlRepository implements Tel
     }
 
     @Override
+    public Future<Void> delete(long id) {
+        return SqlTemplate
+                .forUpdate(sqlClient, "DELETE FROM telegram_record WHERE id = #{id}")
+                .execute(MapUtil.of("id", id))
+                .onFailure(err -> log.error("Failed to delete telegram record: %s".formatted(err.getMessage())))
+                .mapEmpty();
+    }
+
+    @Override
     public Future<TelegramRecord> getById(long id) {
         return SqlTemplate
                 .forQuery(sqlClient, "SELECT * FROM telegram_record WHERE id = #{id} limit 1")
