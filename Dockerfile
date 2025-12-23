@@ -1,4 +1,4 @@
-FROM gradle:8.10-jdk21-alpine AS api-builder
+FROM gradle:8.10-jdk23-alpine AS api-builder
 
 WORKDIR /app
 
@@ -12,7 +12,7 @@ RUN gradle shadowJar --no-daemon && \
     cp /app/build/libs/*.jar /app/api.jar && \
     jdeps --print-module-deps --ignore-missing-deps /app/api.jar > /app/dependencies.txt
 
-FROM eclipse-temurin:21-jdk-alpine AS runtime-builder
+FROM eclipse-temurin:23-jdk-alpine AS runtime-builder
 
 WORKDIR /custom-jre
 
