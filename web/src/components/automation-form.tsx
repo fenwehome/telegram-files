@@ -46,6 +46,8 @@ import {
 } from "@/components/ui/command";
 import { useMutationObserver } from "@/hooks/use-mutation-observer";
 import { cn } from "@/lib/utils";
+import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
 
 interface AutomationFormProps {
   auto: Auto;
@@ -207,6 +209,15 @@ function DownloadRule({ value, onChange }: DownloadRuleProps) {
     });
   };
 
+  const handleFilterExprChange = (
+    e: React.ChangeEvent<HTMLTextAreaElement>,
+  ) => {
+    onChange({
+      ...value,
+      filterExpr: e.target.value,
+    });
+  };
+
   const handleFileTypeSelect = (type: string) => {
     if (value.fileTypes.includes(type as Exclude<FileType, "media">)) {
       return;
@@ -234,14 +245,34 @@ function DownloadRule({ value, onChange }: DownloadRuleProps) {
         <AccordionContent>
           <div className="flex flex-col space-y-4 rounded-md border p-4 shadow">
             <div className="flex flex-col space-y-2">
-              <Label htmlFor="filter-keyword">Filter Keyword</Label>
+              <Label htmlFor="query-keyword">Query Keyword</Label>
               <Input
-                id="filter-keyword"
+                id="query-keyword"
                 type="text"
                 className="w-full"
                 placeholder="Enter a keyword to filter files"
                 value={value.query}
                 onChange={handleQueryChange}
+              />
+            </div>
+            <div className="flex flex-col space-y-2">
+              <Label htmlFor="filter-expr">
+                Filter Expression
+                <Link
+                  href="https://github.com/jarvis2f/telegram-files/blob/main/misc/filter-expression-guide.md"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="ml-2 text-sm text-blue-600 hover:underline"
+                >
+                  (Learn more)
+                </Link>
+              </Label>
+              <Textarea
+                id="filter-expr"
+                className="w-full"
+                placeholder="Enter a filter expression (e.g., str:contains(content.text.text, 'Hello') and id > 1000)"
+                value={value.filterExpr}
+                onChange={handleFilterExprChange}
               />
             </div>
 

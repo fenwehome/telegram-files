@@ -92,6 +92,8 @@ public class SettingAutoRecords {
         public boolean downloadHistory;
 
         public boolean downloadCommentFiles;
+
+        public String filterExpr;
     }
 
     public static class TransferConfig {

@@ -11,7 +11,7 @@ import io.vertx.core.Promise;
 import io.vertx.core.json.Json;
 import io.vertx.core.json.JsonObject;
 import org.drinkless.tdlib.TdApi;
-import org.jooq.lambda.tuple.Tuple2;
+import org.jooq.lambda.tuple.Tuple3;
 import telegram.files.repository.FileRecord;
 import telegram.files.repository.SettingAutoRecords;
 import telegram.files.repository.SettingKey;
@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -211,7 +212,7 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         long chatId = params.chatId;
         long nextFromMessageId = params.nextFromMessageId;
         String nextFileType = params.nextFileType;
-        Tuple2<String, List<String>> rule = handleRule(params.rule);
+        Tuple3<String, List<String>, String> rule = handleRule(params.rule);
         if (StrUtil.isBlank(nextFileType)) {
             nextFileType = rule.v2.getFirst();
         }
@@ -266,9 +267,12 @@ public class AutoDownloadVerticle extends AbstractVerticle {
                 callback.accept(new ScanResult(nextFileType, nextFromMessageId, true));
             }
         } else {
+            Predicate<TdApi.Message> predicate = MessageFilter.filter(rule.v3);
             DataVerticle.fileRepository.getFilesByUniqueId(TdApiHelp.getFileUniqueIds(Arrays.asList(foundChatMessages.messages)))
                     .onSuccess(existFiles -> {
                         List<TdApi.Message> messages = Stream.of(foundChatMessages.messages)
+                                .parallel()
+                                .filter(predicate)
                                 .filter(message -> {
                                     String uniqueId = TdApiHelp.getFileUniqueId(message);
                                     if (!existFiles.containsKey(uniqueId)) {
@@ -290,9 +294,10 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         }
     }
 
-    private Tuple2<String, List<String>> handleRule(SettingAutoRecords.DownloadRule rule) {
+    private Tuple3<String, List<String>, String> handleRule(SettingAutoRecords.DownloadRule rule) {
         String query = null;
         List<String> fileTypes = DEFAULT_FILE_TYPE_ORDER;
+        String filterExpr = null;
         if (rule != null) {
             if (StrUtil.isNotBlank(rule.query)) {
                 query = rule.query;
@@ -300,8 +305,11 @@ public class AutoDownloadVerticle extends AbstractVerticle {
             if (CollUtil.isNotEmpty(rule.fileTypes)) {
                 fileTypes = rule.fileTypes;
             }
+            if (StrUtil.isNotBlank(rule.filterExpr)) {
+                filterExpr = rule.filterExpr;
+            }
         }
-        return new Tuple2<>(query, fileTypes);
+        return new Tuple3<>(query, fileTypes, filterExpr);
     }
 
     private boolean isDownloadTime() {

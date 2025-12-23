@@ -33,6 +33,7 @@ const DEFAULT_AUTO: Auto = {
       fileTypes: [],
       downloadHistory: true,
       downloadCommentFiles: false,
+      filterExpr: "",
     },
   },
   transfer: {
@@ -171,14 +172,25 @@ export default function AutomationDialog() {
                 </p>
               )}
               <div className="space-y-3">
-                {/* Filter Keyword Section */}
+                {/* Query Keyword Section */}
                 <div className="rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
                   <div className="flex flex-col space-y-1">
                     <span className="text-xs font-medium text-gray-500">
-                      Filter Keyword
+                      Query Keyword
                     </span>
                     <span className="text-sm text-gray-500 dark:text-gray-300">
                       {chat.auto.download.rule.query || "No keyword specified"}
+                    </span>
+                  </div>
+                </div>
+                <div className="rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                  <div className="flex flex-col space-y-1">
+                    <span className="text-xs font-medium text-gray-500">
+                      Filter Expression
+                    </span>
+                    <span className="text-sm text-gray-500 dark:text-gray-300">
+                      {chat.auto.download.rule.filterExpr ||
+                        "No filter expression specified"}
                     </span>
                   </div>
                 </div>
@@ -259,55 +271,59 @@ export default function AutomationDialog() {
                   {chat.auto.transfer.enabled ? "Enabled" : "Disabled"}
                 </Badge>
               </div>
-              {(chat.auto.state & (1 << 4)) != 0 && (
-                <p className="text-xs text-muted-foreground">
-                  All historical download files are transferred.
-                </p>
-              )}
-              <div className="space-y-3">
-                <div className="rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                  <div className="flex flex-col space-y-1">
-                    <span className="text-xs font-medium text-gray-500">
-                      Destination Folder
-                    </span>
-                    <span className="text-sm text-gray-500 dark:text-gray-300">
-                      {chat.auto.transfer.rule.destination}
-                    </span>
+              {chat.auto.transfer.enabled && (
+                <>
+                  {(chat.auto.state & (1 << 4)) != 0 && (
+                    <p className="text-xs text-muted-foreground">
+                      All historical download files are transferred.
+                    </p>
+                  )}
+                  <div className="space-y-3">
+                    <div className="rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <div className="flex flex-col space-y-1">
+                        <span className="text-xs font-medium text-gray-500">
+                          Destination Folder
+                        </span>
+                        <span className="text-sm text-gray-500 dark:text-gray-300">
+                          {chat.auto.transfer.rule.destination}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <span className="text-xs text-gray-500 dark:text-gray-300">
+                        Transfer Policy
+                      </span>
+                      <Badge variant="outline" className="font-normal">
+                        {chat.auto.transfer.rule.transferPolicy}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <span className="text-xs text-gray-500 dark:text-gray-300">
+                        Duplication Policy
+                      </span>
+                      <Badge variant="outline" className="font-normal">
+                        {chat.auto.transfer.rule.duplicationPolicy}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
+                      <span className="text-xs text-gray-500 dark:text-gray-300">
+                        Transfer History
+                      </span>
+                      <Badge
+                        className={cn(
+                          "border-none px-2 py-0.5 text-xs text-white",
+                          !chat.auto.transfer.rule.transferHistory &&
+                            "bg-gray-500 dark:bg-gray-800 dark:text-gray-300",
+                        )}
+                      >
+                        {chat.auto.transfer.rule.transferHistory
+                          ? "Enabled"
+                          : "Disabled"}
+                      </Badge>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                  <span className="text-xs text-gray-500 dark:text-gray-300">
-                    Transfer Policy
-                  </span>
-                  <Badge variant="outline" className="font-normal">
-                    {chat.auto.transfer.rule.transferPolicy}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                  <span className="text-xs text-gray-500 dark:text-gray-300">
-                    Duplication Policy
-                  </span>
-                  <Badge variant="outline" className="font-normal">
-                    {chat.auto.transfer.rule.duplicationPolicy}
-                  </Badge>
-                </div>
-                <div className="flex items-center justify-between rounded-lg bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800">
-                  <span className="text-xs text-gray-500 dark:text-gray-300">
-                    Transfer History
-                  </span>
-                  <Badge
-                    className={cn(
-                      "border-none px-2 py-0.5 text-xs text-white",
-                      !chat.auto.transfer.rule.transferHistory &&
-                        "bg-gray-500 dark:bg-gray-800 dark:text-gray-300",
-                    )}
-                  >
-                    {chat.auto.transfer.rule.transferHistory
-                      ? "Enabled"
-                      : "Disabled"}
-                  </Badge>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </div>
         ) : (

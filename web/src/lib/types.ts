@@ -199,4 +199,5 @@ export type AutoDownloadRule = {
   fileTypes: Array<Exclude<FileType, "media">>;
   downloadHistory: boolean;
   downloadCommentFiles: boolean;
+  filterExpr: string;
 };
