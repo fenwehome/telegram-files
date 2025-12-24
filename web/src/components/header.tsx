@@ -24,10 +24,12 @@ import { Button } from "@/components/ui/button";
 import ThemeToggleButton from "@/components/theme-toggle-button";
 import AccountSelect from "@/components/account-select";
 import { useSearchParams } from "next/navigation";
+import { useSettings } from "@/hooks/use-settings";
 
 export function Header() {
   const useTelegramAccountProps = useTelegramAccount();
   const { connectionStatus, accountDownloadSpeed } = useWebsocket();
+  const { settings } = useSettings();
   const isMobile = useIsMobile();
   const [showMore, setShowMore] = useState(false);
   const searchParams = useSearchParams();
@@ -60,7 +62,7 @@ export function Header() {
               <TooltipWrapper content="Current account download speed">
                 <div className="flex max-w-20 items-center gap-2 overflow-hidden text-sm text-muted-foreground">
                   <span className="flex-1 text-nowrap">
-                    {`${prettyBytes(accountDownloadSpeed, { bits: true })}/s`}
+                    {`${prettyBytes(accountDownloadSpeed, { bits: settings?.speedUnits === 'bits' })}/s`}
                   </span>
                   <Download className="h-4 w-4 flex-shrink-0" />
                 </div>

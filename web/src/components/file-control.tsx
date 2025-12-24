@@ -26,6 +26,7 @@ import { useRouter } from "next/navigation";
 import { useTelegramMethod } from "@/hooks/use-telegram-method";
 import { toast } from "@/hooks/use-toast";
 import { useMaybeTelegramChat } from "@/hooks/use-telegram-chat";
+import { useSettings } from "@/hooks/use-settings";
 
 interface ActionButtonProps {
   tooltipText: string;
@@ -71,6 +72,7 @@ export default function FileControl({
 }) {
   const router = useRouter();
   const { executeMethod, isMethodExecuting } = useTelegramMethod();
+  const { settings } = useSettings();
   const { chat } = useMaybeTelegramChat() ?? {};
   const showDownloadInfo =
     !hovered &&
@@ -237,7 +239,7 @@ export default function FileControl({
             >
               <span className="text-nowrap text-xs">
                 {file.downloadStatus === "downloading" && downloadSpeed
-                  ? `${prettyBytes(downloadSpeed, { bits: true })}/s`
+                  ? `${prettyBytes(downloadSpeed, { bits: settings?.speedUnits === "bits" })}/s`
                   : prettyBytes(file.downloadedSize)}
               </span>
             </motion.div>

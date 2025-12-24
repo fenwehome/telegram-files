@@ -25,6 +25,7 @@ import { Button } from "@/components/ui/button";
 import useSWRMutation from "swr/mutation";
 import type { TelegramApiResult } from "@/lib/types"; // Define a fetcher function to handle the API request
 import prettyBytes from "pretty-bytes";
+import { useSettings } from "@/hooks/use-settings";
 
 // Interface defining the structure of the data returned from the API
 interface StatisticsData {
@@ -57,6 +58,7 @@ interface FileStatisticsProps {
 }
 
 const FileStatistics: React.FC<FileStatisticsProps> = ({ telegramId }) => {
+  const { settings } = useSettings();
   // Use SWR for data fetching and caching
   const { data, error, mutate } = useSWR<StatisticsData, Error>(
     `/telegram/${telegramId}/download-statistics`,
@@ -137,28 +139,28 @@ const FileStatistics: React.FC<FileStatisticsProps> = ({ telegramId }) => {
   const avgStatFields = [
     {
       label: "Avg",
-      value: prettyBytes(data.speedStats.avgSpeed, { bits: true }) + "/s",
+      value: prettyBytes(data.speedStats.avgSpeed, { bits: settings?.speedUnits === 'bits' }) + "/s",
       icon: PauseCircle,
       color: "text-blue-500",
       bgColor: "bg-blue-100",
     },
     {
       label: "Max",
-      value: prettyBytes(data.speedStats.maxSpeed, { bits: true }) + "/s",
+      value: prettyBytes(data.speedStats.maxSpeed, { bits: settings?.speedUnits === 'bits' }) + "/s",
       icon: ArrowUp,
       color: "text-green-500",
       bgColor: "bg-green-100",
     },
     {
       label: "Median",
-      value: prettyBytes(data.speedStats.medianSpeed, { bits: true }) + "/s",
+      value: prettyBytes(data.speedStats.medianSpeed, { bits: settings?.speedUnits === 'bits' }) + "/s",
       icon: LineChart,
       color: "text-purple-500",
       bgColor: "bg-purple-100",
     },
     {
       label: "Min",
-      value: prettyBytes(data.speedStats.minSpeed, { bits: true }) + "/s",
+      value: prettyBytes(data.speedStats.minSpeed, { bits: settings?.speedUnits === 'bits' }) + "/s",
       icon: ArrowDown,
       color: "text-red-500",
       bgColor: "bg-red-100",

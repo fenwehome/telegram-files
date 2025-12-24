@@ -144,6 +144,7 @@ export const SettingKeys = [
   "autoDownloadTimeLimited",
   "proxys",
   "avgSpeedInterval",
+  "speedUnits",
   "tags",
 ] as const;
 

@@ -35,9 +35,11 @@ import { Label } from "../ui/label";
 import { Toggle } from "@/components/ui/toggle";
 import { useLocalStorage } from "@/hooks/use-local-storage";
 import { useTelegramChat } from "@/hooks/use-telegram-chat";
+import { useSettings } from "@/hooks/use-settings";
 
 export function MobileHeader() {
   const { accountDownloadSpeed } = useWebsocket();
+  const { settings } = useSettings();
   const [hidden, setHidden] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
@@ -74,7 +76,7 @@ export function MobileHeader() {
           {accountDownloadSpeed !== 0 ? (
             <div className="flex items-center gap-2 overflow-hidden text-sm text-muted-foreground">
               <span className="flex-1 text-nowrap">
-                {`${prettyBytes(accountDownloadSpeed, { bits: true })}/s`}
+                {`${prettyBytes(accountDownloadSpeed, { bits: settings?.speedUnits === "bits" })}/s`}
               </span>
               <Download className="h-4 w-4 flex-shrink-0" />
             </div>
