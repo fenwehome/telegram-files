@@ -66,10 +66,10 @@ public class AutoDownloadVerticle extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
         initAutoDownload()
-                .compose(v -> this.initEventConsumer())
-                .onSuccess(v -> {
+                .compose(_ -> this.initEventConsumer())
+                .onSuccess(_ -> {
                     vertx.setPeriodic(0, HISTORY_SCAN_INTERVAL,
-                            id -> {
+                            _ -> {
                                 if (!isDownloadTime()) {
                                     log.debug("Auto download time limited! Skip scan history.");
                                     return;
@@ -97,7 +97,7 @@ public class AutoDownloadVerticle extends AbstractVerticle {
                                         });
                             });
                     vertx.setPeriodic(0, DOWNLOAD_INTERVAL,
-                            id -> {
+                            _ -> {
                                 if (!isDownloadTime()) {
                                     log.debug("Auto download time limited! Skip download.");
                                     return;
@@ -393,7 +393,7 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         }
 
         List<MessageWrapper> downloadMessages = IntStream.range(0, Math.min(surplusSize, messages.size()))
-                .mapToObj(i -> messages.poll())
+                .mapToObj(_ -> messages.poll())
                 .toList();
         downloadMessages.forEach(messageWrapper -> {
             TdApi.Message message = messageWrapper.message;
@@ -406,7 +406,7 @@ public class AutoDownloadVerticle extends AbstractVerticle {
                         if (fileRecord.threadChatId() != 0
                             && fileRecord.messageThreadId() != 0
                             && fileRecord.threadChatId() != fileRecord.chatId()) {
-                            waitingScanThreads.computeIfAbsent(telegramId, k -> new LinkedList<>())
+                            waitingScanThreads.computeIfAbsent(telegramId, _ -> new LinkedList<>())
                                     .add(new WaitingScanThread(telegramId, fileRecord.threadChatId(), fileRecord.messageThreadId()));
                         }
                     })
@@ -423,7 +423,7 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         autoRecords.getDownloadEnabledItems().stream()
                 .filter(item -> item.telegramId == telegramId && item.chatId == chatId)
                 .findFirst()
-                .flatMap(item -> TelegramVerticles.get(telegramId))
+                .flatMap(_ -> TelegramVerticles.get(telegramId))
                 .ifPresent(telegramVerticle -> {
                     if (telegramVerticle.authorized) {
                         telegramVerticle.client.execute(new TdApi.GetMessage(chatId, messageId))

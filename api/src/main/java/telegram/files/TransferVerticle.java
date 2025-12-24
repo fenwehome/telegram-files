@@ -46,9 +46,9 @@ public class TransferVerticle extends AbstractVerticle {
 
     @Override
     public void start(Promise<Void> startPromise) {
-        initEventConsumer().onSuccess(v -> {
-            vertx.setPeriodic(0, HISTORY_SCAN_INTERVAL, id -> addHistoryFiles());
-            vertx.setPeriodic(0, TRANSFER_INTERVAL, id -> startTransfer());
+        initEventConsumer().onSuccess(_ -> {
+            vertx.setPeriodic(0, HISTORY_SCAN_INTERVAL, _ -> addHistoryFiles());
+            vertx.setPeriodic(0, TRANSFER_INTERVAL, _ -> startTransfer());
 
             log.info("""
                     Transfer verticle started!
@@ -192,7 +192,7 @@ public class TransferVerticle extends AbstractVerticle {
             }
         }
 
-        return transfers.computeIfAbsent(automation.uniqueKey(), k -> {
+        return transfers.computeIfAbsent(automation.uniqueKey(), _ -> {
             Transfer transfer = Transfer.create(transferRule);
             transfer.transferStatusUpdated = updated ->
                     updateTransferStatus(updated.fileRecord(), updated.transferStatus(), updated.localPath());

@@ -35,8 +35,8 @@ public class TelegramRepositoryImpl extends AbstractSqlRepository implements Tel
                 .forUpdate(sqlClient, "INSERT INTO telegram_record(id, first_name, root_path, proxy) VALUES (#{id}, #{first_name}, #{root_path}, #{proxy})")
                 .mapFrom(TelegramRecord.PARAM_MAPPER)
                 .execute(telegramRecord)
-                .map(r -> telegramRecord)
-                .onSuccess(r -> log.trace("Successfully created telegram record: %s".formatted(telegramRecord.id())))
+                .map(_ -> telegramRecord)
+                .onSuccess(_ -> log.trace("Successfully created telegram record: %s".formatted(telegramRecord.id())))
                 .onFailure(
                         err -> log.error("Failed to create telegram record: %s".formatted(err.getMessage()))
                 );
@@ -48,8 +48,8 @@ public class TelegramRepositoryImpl extends AbstractSqlRepository implements Tel
                 .forUpdate(sqlClient, "UPDATE telegram_record SET first_name = #{first_name}, root_path = #{root_path}, proxy = #{proxy} WHERE id = #{id}")
                 .mapFrom(TelegramRecord.PARAM_MAPPER)
                 .execute(telegramRecord)
-                .map(r -> telegramRecord)
-                .onSuccess(r -> log.debug("Successfully updated telegram record: %s".formatted(telegramRecord.id())))
+                .map(_ -> telegramRecord)
+                .onSuccess(_ -> log.debug("Successfully updated telegram record: %s".formatted(telegramRecord.id())))
                 .onFailure(
                         err -> log.error("Failed to update telegram record: %s".formatted(err.getMessage()))
                 );

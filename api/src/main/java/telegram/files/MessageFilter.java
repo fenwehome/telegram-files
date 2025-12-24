@@ -30,7 +30,7 @@ public class MessageFilter {
 
     private static final CopyOptions BEAN_TO_MAP_OPTIONS_1 = CopyOptions.create()
             .setIgnoreNullValue(true)
-            .setFieldValueEditor((fieldName, fieldValue) -> {
+            .setFieldValueEditor((_, fieldValue) -> {
                 if (fieldValue == null) {
                     return null;
                 }
@@ -43,7 +43,7 @@ public class MessageFilter {
 
     private static final CopyOptions BEAN_TO_MAP_OPTIONS_2 = CopyOptions.create()
             .setIgnoreNullValue(true)
-            .setFieldValueEditor((fieldName, fieldValue) -> {
+            .setFieldValueEditor((_, fieldValue) -> {
                 if (fieldValue == null) {
                     return null;
                 }
@@ -56,7 +56,7 @@ public class MessageFilter {
 
     private static final CopyOptions BEAN_TO_MAP_OPTIONS_3 = CopyOptions.create()
             .setIgnoreNullValue(true)
-            .setFieldValueEditor((fieldName, fieldValue) -> {
+            .setFieldValueEditor((_, fieldValue) -> {
                 if (fieldValue == null) {
                     return null;
                 }
@@ -69,7 +69,7 @@ public class MessageFilter {
 
     private static final CopyOptions BEAN_TO_MAP_OPTIONS_4 = CopyOptions.create()
             .setIgnoreNullValue(true)
-            .setFieldValueEditor((fieldName, fieldValue) -> {
+            .setFieldValueEditor((_, fieldValue) -> {
                 if (fieldValue == null) {
                     return null;
                 }
@@ -82,7 +82,7 @@ public class MessageFilter {
 
     private static final CopyOptions BEAN_TO_MAP_OPTIONS = CopyOptions.create()
             .setIgnoreNullValue(true)
-            .setFieldValueEditor((fieldName, fieldValue) -> {
+            .setFieldValueEditor((_, fieldValue) -> {
                 if (fieldValue == null) {
                     return null;
                 }

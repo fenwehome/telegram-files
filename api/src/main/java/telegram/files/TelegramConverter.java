@@ -101,7 +101,7 @@ public class TelegramConverter {
                 case 3, 4 -> DateUtil.date(timestamp).setField(DateField.MINUTE, 0).toString(DatePattern.NORM_DATE_FORMAT);
                 default -> throw new IllegalStateException("Unexpected value: " + timeRange);
             };
-            groupedSpeedStats.computeIfAbsent(time, k -> new ArrayList<>()).add(data);
+            groupedSpeedStats.computeIfAbsent(time, _ -> new ArrayList<>()).add(data);
         }
         return groupedSpeedStats.entrySet().stream()
                 .map(entry -> {

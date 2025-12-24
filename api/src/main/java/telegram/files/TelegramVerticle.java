@@ -99,8 +99,8 @@ public class TelegramVerticle extends AbstractVerticle {
 
         client.initialize(telegramUpdateHandler, this::handleException, this::handleException);
         Future.all(initEventConsumer(), initAvgSpeed())
-                .compose(r -> this.enableProxy(this.proxyName))
-                .onSuccess(r -> startPromise.complete())
+                .compose(_ -> this.enableProxy(this.proxyName))
+                .onSuccess(_ -> startPromise.complete())
                 .onFailure(startPromise::fail);
     }
 
@@ -112,7 +112,7 @@ public class TelegramVerticle extends AbstractVerticle {
 
     public Future<Void> close(boolean needDelete) {
         return client.execute(new TdApi.Close())
-                .onSuccess(r -> {
+                .onSuccess(_ -> {
                     log.info("[%s] Telegram account closed".formatted(this.getRootId()));
                     this.needDelete = needDelete;
                 })
@@ -305,7 +305,7 @@ public class TelegramVerticle extends AbstractVerticle {
                     if (file.local != null) {
                         if (file.local.isDownloadingCompleted) {
                             return syncFileDownloadStatus(file, message, messageThreadInfo)
-                                    .compose(r -> DataVerticle.fileRepository.getByUniqueId(file.remote.uniqueId));
+                                    .compose(_ -> DataVerticle.fileRepository.getByUniqueId(file.remote.uniqueId));
                         }
                         if (file.local.isDownloadingActive) {
                             return Future.failedFuture("File is downloading");
@@ -454,7 +454,7 @@ public class TelegramVerticle extends AbstractVerticle {
                     return Future.succeededFuture(file);
                 })
                 .compose(file -> DataVerticle.fileRepository.deleteByUniqueId(uniqueId).map(file))
-                .onSuccess(file -> sendEvent(EventPayload.build(EventPayload.TYPE_FILE_STATUS, new JsonObject()
+                .onSuccess(_ -> sendEvent(EventPayload.build(EventPayload.TYPE_FILE_STATUS, new JsonObject()
                         .put("fileId", fileId)
                         .put("uniqueId", uniqueId)
                         .put("removed", true)
@@ -592,13 +592,11 @@ public class TelegramVerticle extends AbstractVerticle {
         if (StrUtil.isBlank(toggleProxyName) && StrUtil.isNotBlank(this.proxyName)) {
             // disable proxy
             return client.execute(new TdApi.DisableProxy())
-                    .compose(r -> {
+                    .compose(_ -> {
                         this.proxyName = null;
                         if (this.telegramRecord != null) {
                             return DataVerticle.telegramRepository.update(this.telegramRecord.withProxy(null))
-                                    .onSuccess(telegramRecord -> {
-                                        this.telegramRecord = telegramRecord;
-                                    })
+                                    .onSuccess(telegramRecord -> this.telegramRecord = telegramRecord)
                                     .mapEmpty();
                         }
                         return Future.succeededFuture();
@@ -683,9 +681,7 @@ public class TelegramVerticle extends AbstractVerticle {
                         }
                         return Future.succeededFuture(statusData);
                     })
-                    .onSuccess(finalStatusData -> {
-                        sendEvent(EventPayload.build(EventPayload.TYPE_FILE_STATUS, finalStatusData));
-                    })
+                    .onSuccess(finalStatusData -> sendEvent(EventPayload.build(EventPayload.TYPE_FILE_STATUS, finalStatusData)))
                     .onFailure(err -> {
                         // 如果获取缩略图失败，仍然发送基本状态信息
                         log.error("Failed to get thumbnail info for file: %s, error: %s".formatted(file.remote.uniqueId, err.getMessage()));
@@ -746,7 +742,7 @@ public class TelegramVerticle extends AbstractVerticle {
                 .compose(interval -> {
                     if (Objects.equals(interval, avgSpeed.getSpeedStats().interval())) {
                         if (avgSpeedPersistenceTimerId == 0) {
-                            avgSpeedPersistenceTimerId = vertx.setPeriodic(interval * 1000, id -> handleSaveAvgSpeed());
+                            avgSpeedPersistenceTimerId = vertx.setPeriodic(interval * 1000, _ -> handleSaveAvgSpeed());
                         }
                         return Future.succeededFuture();
                     }
@@ -755,7 +751,7 @@ public class TelegramVerticle extends AbstractVerticle {
                     if (avgSpeedPersistenceTimerId != 0) {
                         vertx.cancelTimer(avgSpeedPersistenceTimerId);
                     }
-                    avgSpeedPersistenceTimerId = vertx.setPeriodic(interval * 1000, id -> handleSaveAvgSpeed());
+                    avgSpeedPersistenceTimerId = vertx.setPeriodic(interval * 1000, _ -> handleSaveAvgSpeed());
                     return Future.succeededFuture();
                 });
     }
@@ -926,7 +922,7 @@ public class TelegramVerticle extends AbstractVerticle {
                             .withThreadInfo(messageThreadInfo);
 
                     return DataVerticle.fileRepository.create(fileRecord)
-                            .compose(r -> DataVerticle.fileRepository.updateDownloadStatus(
+                            .compose(_ -> DataVerticle.fileRepository.updateDownloadStatus(
                                     file.id,
                                     file.remote.uniqueId,
                                     file.local.path,

@@ -29,9 +29,9 @@ public class PreloadMessageVerticle extends AbstractVerticle {
     @Override
     public void start(Promise<Void> startPromise) {
         initEventConsumer()
-                .onSuccess(r -> {
+                .onSuccess(_ -> {
                     vertx.setPeriodic(0, HISTORY_SCAN_INTERVAL,
-                            id -> autoRecords.getPreloadEnabledItems()
+                            _ -> autoRecords.getPreloadEnabledItems()
                                     .stream()
                                     .filter(auto -> auto.isNotComplete(SettingAutoRecords.HISTORY_PRELOAD_STATE))
                                     .forEach(auto -> addHistoryMessage(auto, System.currentTimeMillis())));
