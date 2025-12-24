@@ -172,8 +172,8 @@ export default function AutomationForm({
               <div className="flex items-start">
                 <span className="mr-3 mt-1.5 h-3 w-2 flex-shrink-0 rounded-full bg-cyan-400"></span>
                 <p className="text-sm leading-6 text-gray-700 dark:text-gray-300">
-                  This will enable preload for this chat. All files will be
-                  loaded, but not downloaded, then you can search offline.
+                  This will enable auto transfer for this chat. Downloaded files
+                  will be transferred to the specified location automatically.
                 </p>
               </div>
             </div>
