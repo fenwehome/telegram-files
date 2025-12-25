@@ -401,6 +401,29 @@ function TransferRule({ value, onChange }: TransferRuleProps) {
               />
             </div>
 
+            {value.transferPolicy === "GROUP_BY_AI" && (
+              <div className="flex flex-col space-y-2">
+                <Label htmlFor="prompt-template">
+                  AI Classification Prompt Template
+                </Label>
+                <Textarea
+                  id="prompt-template"
+                  className="w-full"
+                  rows={4}
+                  placeholder="Enter a prompt template to guide AI classification"
+                  value={value.extra.promptTemplate || ""}
+                  onChange={(e) =>
+                    handleTransferRuleChange({
+                      extra: {
+                        ...value.extra,
+                        promptTemplate: e.target.value,
+                      },
+                    })
+                  }
+                />
+              </div>
+            )}
+
             <div className="flex flex-col space-y-2">
               <Label htmlFor="duplication-policy">Duplication Policy</Label>
               <PolicySelect
@@ -469,6 +492,30 @@ const PolicyLegends: Record<
         <p className="text-xs text-muted-foreground">Example:</p>
         <p className="inline-block rounded bg-gray-100 p-1 text-xs text-muted-foreground dark:bg-gray-800 dark:text-gray-300">
           {"/${Destination Folder}/${File Type}/${file}"}
+        </p>
+      </div>
+    ),
+  },
+  GROUP_BY_AI: {
+    title: "Group by AI",
+    description: (
+      <div className="space-y-2">
+        <p className="text-sm">
+          Use AI to classify files and transfer them to different folders based
+          on their content.
+        </p>
+        <p className="text-sm">
+          You can write a prompt to guide the AI in classifying the files. Like:
+        </p>
+        <p className="inline-block rounded bg-gray-100 p-1 text-xs text-muted-foreground dark:bg-gray-800 dark:text-gray-300">
+          Classify the following file into one of the categories: Work,
+          Personal, Important, Others. <br />
+          File name: {"{file_name}"} <br />
+          Respond with only the category name.
+        </p>
+        <p className="text-sm">
+          You can use {"{FileRecord Field}"} in the prompt to provide more
+          context to the AI.
         </p>
       </div>
     ),

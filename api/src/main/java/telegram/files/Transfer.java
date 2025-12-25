@@ -2,13 +2,24 @@ package telegram.files;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.text.StrFormatter;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
+import com.fasterxml.jackson.annotation.JsonClassDescription;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonPropertyDescription;
+import com.openai.client.OpenAIClient;
+import com.openai.client.okhttp.OpenAIOkHttpClient;
+import com.openai.models.chat.completions.ChatCompletionCreateParams;
+import com.openai.models.chat.completions.StructuredChatCompletionCreateParams;
+import io.vertx.core.json.JsonObject;
 import telegram.files.repository.FileRecord;
 import telegram.files.repository.SettingAutoRecords;
 
 import java.io.File;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Objects;
 import java.util.function.Consumer;
 
@@ -24,6 +35,8 @@ public abstract class Transfer {
 
     public boolean transferHistory;
 
+    public JsonObject extra;
+
     public Consumer<TransferStatusUpdated> transferStatusUpdated;
 
     private FileRecord transferRecord;
@@ -33,20 +46,23 @@ public abstract class Transfer {
         this.transferPolicy = transferRule.transferPolicy;
         this.duplicationPolicy = transferRule.duplicationPolicy;
         this.transferHistory = transferRule.transferHistory;
+        this.extra = transferRule.extra != null ? transferRule.extra : new JsonObject();
     }
 
     public static Transfer create(SettingAutoRecords.TransferRule transferRule) {
         return switch (transferRule.transferPolicy) {
             case GROUP_BY_CHAT -> new GroupByChat(transferRule);
             case GROUP_BY_TYPE -> new GroupByType(transferRule);
+            case GROUP_BY_AI -> new GroupByAI(transferRule);
         };
     }
 
     public boolean isRuleUpdated(SettingAutoRecords.TransferRule transferRule) {
         return !Objects.equals(this.destination, transferRule.destination)
-                || this.transferPolicy != transferRule.transferPolicy
-                || this.duplicationPolicy != transferRule.duplicationPolicy
-                || this.transferHistory != transferRule.transferHistory;
+               || this.transferPolicy != transferRule.transferPolicy
+               || this.duplicationPolicy != transferRule.duplicationPolicy
+               || this.transferHistory != transferRule.transferHistory
+               || !Objects.equals(this.extra, transferRule.extra);
     }
 
     public void transfer(FileRecord fileRecord) {
@@ -159,6 +175,52 @@ public abstract class Transfer {
         }
     }
 
+    static class GroupByAI extends Transfer {
+        private final OpenAIClient client;
+
+        private final String promptTemplate;
+
+        public GroupByAI(SettingAutoRecords.TransferRule transferRule) {
+            super(transferRule);
+            promptTemplate = extra.getString("promptTemplate");
+            if (StrUtil.isBlank(promptTemplate)) {
+                throw new IllegalArgumentException("Prompt template is required for AI classification transfer policy");
+            }
+            client = OpenAIOkHttpClient.fromEnv();
+        }
+
+        @Override
+        protected String getTransferPath(FileRecord fileRecord) {
+            Map<String, Object> fileMap = FileRecord.toMap(fileRecord);
+            String prompt = StrFormatter.format(promptTemplate, fileMap, false);
+            StructuredChatCompletionCreateParams<AIClassificationResult> createParams = ChatCompletionCreateParams.builder()
+                    .model(Config.OPENAI_MODEL)
+                    .responseFormat(AIClassificationResult.class)
+                    .addUserMessage(prompt)
+                    .build();
+
+            AIClassificationResult result = client.chat().completions().create(createParams).choices().stream()
+                    .flatMap(choice -> choice.message().content().stream())
+                    .findFirst()
+                    .orElseThrow(() -> new IllegalStateException("No classification result from AI"));
+            if (StrUtil.isBlank(result.path)) {
+                throw new IllegalStateException("Invalid classification result from AI: " + result);
+            }
+            log.debug("File {} classified to {} by AI, reason: {}", fileRecord.id(), result.path, result.reason);
+            String name = FileUtil.getName(fileRecord.localPath());
+            // Check if the path contains file extension
+            if (StrUtil.isNotBlank(FileUtil.extName(result.path))) {
+                name = "";
+            }
+
+            return Path.of(destination,
+                    result.path,
+                    name
+            ).toString();
+        }
+
+    }
+
     public record TransferStatusUpdated(FileRecord fileRecord,
                                         FileRecord.TransferStatus transferStatus,
                                         String localPath) {
@@ -173,6 +235,10 @@ public abstract class Transfer {
          * Transfer files by type
          */
         GROUP_BY_TYPE,
+        /**
+         * Transfer files by AI classification
+         */
+        GROUP_BY_AI,
         ;
     }
 
@@ -195,5 +261,16 @@ public abstract class Transfer {
          */
         HASH,
         ;
+    }
+
+    @JsonClassDescription("AI Classification Result")
+    static class AIClassificationResult {
+        @JsonProperty
+        @JsonPropertyDescription("A relative path for classification, e.g., images/nature, documents/work/example.pdf")
+        public String path;
+
+        @JsonProperty
+        @JsonPropertyDescription("Reason for classification or can't classify")
+        public String reason;
     }
 }

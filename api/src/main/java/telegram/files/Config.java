@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.log.Log;
 import cn.hutool.log.LogFactory;
 import cn.hutool.log.dialect.jdk.JdkLog;
+import com.openai.models.ChatModel;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.ThreadingModel;
 
@@ -45,6 +46,8 @@ public class Config {
     public static final String TELEGRAM_API_HASH = System.getenv("TELEGRAM_API_HASH");
 
     public static final int TELEGRAM_LOG_LEVEL = Convert.toInt(System.getenv("TELEGRAM_LOG_LEVEL"), 0);
+
+    public static final String OPENAI_MODEL = StrUtil.blankToDefault(System.getenv("OPENAI_MODEL"), ChatModel.GPT_4O_MINI.asString());
 
     public static final DeploymentOptions VIRTUAL_THREAD_DEPLOYMENT_OPTIONS = new DeploymentOptions()
             .setThreadingModel(ThreadingModel.VIRTUAL_THREAD);
