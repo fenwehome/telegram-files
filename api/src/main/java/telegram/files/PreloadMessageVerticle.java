@@ -69,6 +69,9 @@ public class PreloadMessageVerticle extends AbstractVerticle {
         }
 
         TelegramVerticle telegramVerticle = TelegramVerticles.getOrElseThrow(auto.telegramId);
+        if (!telegramVerticle.authorized) {
+            return;
+        }
         TdApi.SearchChatMessages searchChatMessages = new TdApi.SearchChatMessages();
         searchChatMessages.chatId = auto.chatId;
         searchChatMessages.fromMessageId = auto.preload.nextFromMessageId;

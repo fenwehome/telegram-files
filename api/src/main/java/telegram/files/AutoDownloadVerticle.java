@@ -230,6 +230,10 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         }
 
         TelegramVerticle telegramVerticle = TelegramVerticles.getOrElseThrow(telegramId);
+        if (!telegramVerticle.authorized) {
+            callback.accept(new ScanResult(nextFileType, nextFromMessageId, false));
+            return;
+        }
         TdApi.SearchChatMessages searchChatMessages = new TdApi.SearchChatMessages();
         searchChatMessages.query = rule.v1;
         searchChatMessages.chatId = chatId;
@@ -387,6 +391,9 @@ public class AutoDownloadVerticle extends AbstractVerticle {
         }
         log.debug("Download start! TelegramId: %d size: %d".formatted(telegramId, messages.size()));
         TelegramVerticle telegramVerticle = TelegramVerticles.getOrElseThrow(telegramId);
+        if (!telegramVerticle.authorized) {
+            return;
+        }
         int surplusSize = getSurplusSize(telegramId);
         if (surplusSize <= 0) {
             return;
