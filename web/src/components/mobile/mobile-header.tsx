@@ -101,7 +101,11 @@ function MenuDrawer() {
   );
 
   return (
-    <Drawer direction="left">
+    <Drawer
+      direction="left"
+      shouldScaleBackground={true}
+      preventScrollRestoration={true}
+    >
       <DrawerTrigger asChild>
         <Button size="xs" variant="ghost">
           <Ellipsis className="h-4 w-4" />
