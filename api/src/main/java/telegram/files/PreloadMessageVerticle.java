@@ -127,7 +127,7 @@ public class PreloadMessageVerticle extends AbstractVerticle {
 
                     Future.all(
                                     telegramVerticle.client.execute(new TdApi.GetMessage(chatId, messageId)),
-                                    telegramVerticle.client.execute(new TdApi.GetMessageThread(chatId, messageId))
+                                    telegramVerticle.client.execute(new TdApi.GetMessageThread(chatId, messageId), true)
                             )
                             .onSuccess(result -> {
                                 TdApi.Message message = result.resultAt(0);
