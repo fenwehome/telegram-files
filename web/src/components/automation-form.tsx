@@ -467,6 +467,10 @@ const PolicyLegends: Record<
     description: string | React.ReactNode;
   }
 > = {
+  DIRECT: {
+    title: "Direct",
+    description: "Transfer files directly to the destination folder.",
+  },
   GROUP_BY_CHAT: {
     title: "Group by Chat",
     description: (

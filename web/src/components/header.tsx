@@ -60,7 +60,7 @@ export function Header() {
           <div className="flex items-center gap-2">
             {accountDownloadSpeed !== 0 && (
               <TooltipWrapper content="Current account download speed">
-                <div className="flex max-w-20 items-center gap-2 overflow-hidden text-sm text-muted-foreground">
+                <div className="flex items-center gap-2 overflow-hidden text-sm text-muted-foreground">
                   <span className="flex-1 text-nowrap">
                     {`${prettyBytes(accountDownloadSpeed, { bits: settings?.speedUnits === 'bits' })}/s`}
                   </span>

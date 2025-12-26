@@ -51,6 +51,7 @@ public abstract class Transfer {
 
     public static Transfer create(SettingAutoRecords.TransferRule transferRule) {
         return switch (transferRule.transferPolicy) {
+            case DIRECT -> new DirectTransfer(transferRule);
             case GROUP_BY_CHAT -> new GroupByChat(transferRule);
             case GROUP_BY_TYPE -> new GroupByType(transferRule);
             case GROUP_BY_AI -> new GroupByAI(transferRule);
@@ -221,12 +222,29 @@ public abstract class Transfer {
 
     }
 
+    static class DirectTransfer extends Transfer {
+
+        public DirectTransfer(SettingAutoRecords.TransferRule transferRule) {
+            super(transferRule);
+        }
+
+        @Override
+        protected String getTransferPath(FileRecord fileRecord) {
+            String name = FileUtil.getName(fileRecord.localPath());
+            return Path.of(destination, name).toString();
+        }
+    }
+
     public record TransferStatusUpdated(FileRecord fileRecord,
                                         FileRecord.TransferStatus transferStatus,
                                         String localPath) {
     }
 
     public enum TransferPolicy {
+        /**
+         * Transfer files to the specified destination without grouping
+         */
+        DIRECT,
         /**
          * Transfer files by chat id
          */
@@ -239,7 +257,6 @@ public abstract class Transfer {
          * Transfer files by AI classification
          */
         GROUP_BY_AI,
-        ;
     }
 
     public enum DuplicationPolicy {
@@ -260,7 +277,6 @@ public abstract class Transfer {
          * delete the original file and set the local path to the existing file, otherwise, move the file
          */
         HASH,
-        ;
     }
 
     @JsonClassDescription("AI Classification Result")

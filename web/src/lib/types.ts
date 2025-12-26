@@ -178,7 +178,7 @@ export type Auto = {
   };
 };
 
-export const TransferPolices = ["GROUP_BY_CHAT", "GROUP_BY_TYPE", "GROUP_BY_AI"] as const;
+export const TransferPolices = ["DIRECT", "GROUP_BY_CHAT", "GROUP_BY_TYPE", "GROUP_BY_AI"] as const;
 export type TransferPolicy = (typeof TransferPolices)[number];
 export const DuplicationPolicies = [
   "OVERWRITE",
